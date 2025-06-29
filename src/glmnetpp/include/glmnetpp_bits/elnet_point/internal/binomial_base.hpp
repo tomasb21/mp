@@ -486,6 +486,7 @@ public:
         , emax_(1.0 / emin_)
         , b_(vp.size() + 1, y.cols())
         , bs_(vp.size() + 1, y.cols())
+        , p_(mp.rows(), y.cols())
         , q_(y.rows(), y.cols())
         , sxp_(y.rows())
         , y_(y.data(), y.rows(), y.cols())
@@ -503,6 +504,7 @@ public:
     GLMNETPP_STRONG_INLINE bool is_excluded(index_t k) const { return !this->strong_map()[k]; }
     GLMNETPP_STRONG_INLINE auto n_classes() const { return nc_; }
     GLMNETPP_STRONG_INLINE value_t beta(index_t k, index_t ic) const { return b_(k+1, ic); }
+    GLMNETPP_STRONG_INLINE value_t penalty_matrix(index_t k, index_t ic) const { return p_(k+1, ic); }
     GLMNETPP_STRONG_INLINE value_t intercept(index_t ic) const { return b_(0, ic); }
 
 protected:
@@ -516,6 +518,7 @@ protected:
     GLMNETPP_STRONG_INLINE const auto& offset() const { return g_; }
     GLMNETPP_STRONG_INLINE auto& beta() { return b_; }
     GLMNETPP_STRONG_INLINE const auto& beta() const { return b_; }
+    GLMNETPP_STRONG_INLINE const auto& penalty_matrix() const { return p_; }
     GLMNETPP_STRONG_INLINE auto& old_beta() { return bs_; }
     GLMNETPP_STRONG_INLINE const auto& old_beta() const { return bs_; }
 
@@ -702,6 +705,7 @@ private:
 
     mat_t b_;               // matrix of coefficients with intercepts at row 0
     mat_t bs_;              // matrix of old coefficients with intercepts at row 0
+    mat_t p_;               // matrix of penalties
     mat_t q_;               // matrix of probability predictions
     vec_t sxp_;             // sum of exponential terms to normalize the probabilities
     Eigen::Map<const mat_t> y_; // original y response
@@ -771,6 +775,7 @@ public:
         , is_(is.data(), is.size())
         , bs_ic_(nullptr, 0)
         , b_ic_(nullptr, 0)
+        , p_ic_(nullptr, 0)
         , q_ic_(nullptr, 0)
         , y_ic_(nullptr, 0)
         , xv_ic_(nullptr, 0)
@@ -797,6 +802,8 @@ public:
 
     GLMNETPP_STRONG_INLINE value_t& beta(index_t k) { return b_ic_(k+1); }
     GLMNETPP_STRONG_INLINE value_t beta(index_t k) const { return b_ic_(k+1); }
+    GLMNETPP_STRONG_INLINE value_t& penalty_matrix(index_t k) { return p_ic_(k+1); }
+    GLMNETPP_STRONG_INLINE value_t penalty_matrix(index_t k) const { return p_ic_(k+1); }
 
 protected:
     using base_t::initialize_resid;
@@ -828,7 +835,7 @@ protected:
     void update_beta(index_t k, value_t gk, value_t l1_regul, value_t l2_regul) {
         const auto& cl = this->endpts();
         base_t::update_beta(
-                beta(k), gk, xv_ic_(k), this->penalty()(k),
+                beta(k), gk, xv_ic_(k), this->penalty_matrix()(k),
                 cl(0,k), cl(1,k), l1_regul, l2_regul);
     }
 
@@ -838,12 +845,14 @@ protected:
         const auto& y = this->y();
         auto& q = this->q();
         auto& b = this->beta();
+        auto& p__ = this->penalty_matrix();
         auto& bs = this->old_beta();
         const auto& sxp = this->sxp();
 
         // set the viewers to current class
         new (&bs_ic_) Eigen::Map<vec_t>      (bs.col(ic).data(), bs.rows());
         new (&b_ic_ ) Eigen::Map<vec_t>      (b.col(ic).data(), b.rows());
+        new (&p_ic_ ) Eigen::Map<vec_t>      (p__.col(ic).data(), p__.rows());            
         new (&q_ic_ ) Eigen::Map<vec_t>      (q.col(ic).data(), q.rows());
         new (&y_ic_ ) Eigen::Map<const vec_t>(y.col(ic).data(), y.rows());
         new (&xv_ic_) Eigen::Map<vec_t>      (xv_.col(ic).data(), xv_.rows());
@@ -888,6 +897,7 @@ protected:
         auto ab = l1_regul;
         auto& y = this->y();
         auto& b = this->beta();
+        auto& p__ = this->penalty_matrix();
         auto& sxp = this->sxp();
         auto& q = this->q();
         auto nc = y.cols();
@@ -906,7 +916,7 @@ protected:
 
         std::for_each(begin, end, 
                 [&](auto l) {  
-                    if (this->penalty()(l) <= 0) { s = b.row(l+1).sum()/nc; }
+                    if (this->penalty__()(l) <= 0) { s = b.row(l+1).sum()/nc; }
                     else { s = elc(beta, this->endpts().col(l), b.row(l+1)); }
                     b.row(l+1).array() -= s;
                     update_y_pred_f(l, s, di_);
@@ -1083,6 +1093,7 @@ private:
     // current views of column for given class ic (see set_class())
     Eigen::Map<vec_t> bs_ic_;
     Eigen::Map<vec_t> b_ic_;
+    Eigen::Map<vec_t> p_ic_;
     Eigen::Map<vec_t> q_ic_;
     Eigen::Map<const vec_t> y_ic_;
     Eigen::Map<vec_t> xv_ic_;
