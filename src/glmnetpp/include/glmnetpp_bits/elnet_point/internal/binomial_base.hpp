@@ -835,7 +835,7 @@ protected:
     void update_beta(index_t k, value_t gk, value_t l1_regul, value_t l2_regul) {
         const auto& cl = this->endpts();
         base_t::update_beta(
-                beta(k), gk, xv_ic_(k), this->penalty_matrix()(k),
+                beta(k), gk, xv_ic_(k), this->penalty()(k),
                 cl(0,k), cl(1,k), l1_regul, l2_regul);
     }
 
@@ -845,14 +845,12 @@ protected:
         const auto& y = this->y();
         auto& q = this->q();
         auto& b = this->beta();
-        auto& p__ = this->penalty_matrix();
         auto& bs = this->old_beta();
         const auto& sxp = this->sxp();
 
         // set the viewers to current class
         new (&bs_ic_) Eigen::Map<vec_t>      (bs.col(ic).data(), bs.rows());
-        new (&b_ic_ ) Eigen::Map<vec_t>      (b.col(ic).data(), b.rows());
-        new (&p_ic_ ) Eigen::Map<vec_t>      (p__.col(ic).data(), p__.rows());            
+        new (&b_ic_ ) Eigen::Map<vec_t>      (b.col(ic).data(), b.rows());            
         new (&q_ic_ ) Eigen::Map<vec_t>      (q.col(ic).data(), q.rows());
         new (&y_ic_ ) Eigen::Map<const vec_t>(y.col(ic).data(), y.rows());
         new (&xv_ic_) Eigen::Map<vec_t>      (xv_.col(ic).data(), xv_.rows());
