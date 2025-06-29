@@ -897,7 +897,6 @@ protected:
         auto ab = l1_regul;
         auto& y = this->y();
         auto& b = this->beta();
-        auto& p__ = this->penalty_matrix();
         auto& sxp = this->sxp();
         auto& q = this->q();
         auto nc = y.cols();
@@ -916,7 +915,7 @@ protected:
 
         std::for_each(begin, end, 
                 [&](auto l) {  
-                    if (this->penalty__()(l) <= 0) { s = b.row(l+1).sum()/nc; }
+                    if (this->penalty()(l) <= 0) { s = b.row(l+1).sum()/nc; }
                     else { s = elc(beta, this->endpts().col(l), b.row(l+1)); }
                     b.row(l+1).array() -= s;
                     update_y_pred_f(l, s, di_);
