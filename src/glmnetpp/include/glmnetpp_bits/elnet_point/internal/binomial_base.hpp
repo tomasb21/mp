@@ -845,7 +845,6 @@ protected:
         const auto& y = this->y();
         auto& q = this->q();
         auto& b = this->beta();
-        auto& p__ = this->penalty_matrix();
         auto& bs = this->old_beta();
         const auto& sxp = this->sxp();
 
