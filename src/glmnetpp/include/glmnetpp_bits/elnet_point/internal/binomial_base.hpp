@@ -494,6 +494,7 @@ public:
     {
         b_.setZero();
         bs_.setZero();
+        p_.setZero();
         sxp_.setZero();
     }
 
@@ -783,6 +784,7 @@ public:
     {}
 
     using base_t::beta;
+    using base_t::penalty_matrix;
 
     template <class PackType>
     GLMNETPP_STRONG_INLINE
