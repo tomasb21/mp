@@ -835,7 +835,7 @@ protected:
     void update_beta(index_t k, value_t gk, value_t l1_regul, value_t l2_regul) {
         const auto& cl = this->endpts();
         base_t::update_beta(
-                beta(k), gk, xv_ic_(k), this->penalty()(k),
+                beta(k), gk, xv_ic_(k), this->penalty_matrix()(k),
                 cl(0,k), cl(1,k), l1_regul, l2_regul);
     }
 
