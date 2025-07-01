@@ -801,11 +801,6 @@ public:
         base_t::update_dlx(beta_diff, xv_ic_(k));
     }
 
-    for (index_t ic = 0; ic < nc; ++ic) {
-    p_ic_ = p_.col(ic);  // initialize penalty vector for this coordinate
-    // then call update_beta(k, gk, l1_regul, l2_regul) for all k
-    }
-
     GLMNETPP_STRONG_INLINE value_t& beta(index_t k) { return b_ic_(k+1); }
     GLMNETPP_STRONG_INLINE value_t beta(index_t k) const { return b_ic_(k+1); }
     GLMNETPP_STRONG_INLINE value_t& penalty_matrix(index_t k) { return p_ic_(k); }
