@@ -848,11 +848,13 @@ protected:
         auto& q = this->q();
         auto& b = this->beta();
         auto& bs = this->old_beta();
+        auto& ppp = this->penalty_matrix();
         const auto& sxp = this->sxp();
 
         // set the viewers to current class
         new (&bs_ic_) Eigen::Map<vec_t>      (bs.col(ic).data(), bs.rows());
-        new (&b_ic_ ) Eigen::Map<vec_t>      (b.col(ic).data(), b.rows());            
+        new (&b_ic_ ) Eigen::Map<vec_t>      (b.col(ic).data(), b.rows());   
+        new (&p_ic_) Eigen::Map<const vec_t> (ppp.col(ic).data(), ppp.rows());
         new (&q_ic_ ) Eigen::Map<vec_t>      (q.col(ic).data(), q.rows());
         new (&y_ic_ ) Eigen::Map<const vec_t>(y.col(ic).data(), y.rows());
         new (&xv_ic_) Eigen::Map<vec_t>      (xv_.col(ic).data(), xv_.rows());
