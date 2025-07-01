@@ -505,7 +505,7 @@ public:
     GLMNETPP_STRONG_INLINE bool is_excluded(index_t k) const { return !this->strong_map()[k]; }
     GLMNETPP_STRONG_INLINE auto n_classes() const { return nc_; }
     GLMNETPP_STRONG_INLINE value_t beta(index_t k, index_t ic) const { return b_(k+1, ic); }
-    GLMNETPP_STRONG_INLINE value_t penalty_matrix(index_t k, index_t ic) const { return p_(k+1, ic); }
+    GLMNETPP_STRONG_INLINE value_t penalty_matrix(index_t k, index_t ic) const { return p_(k, ic); }
     GLMNETPP_STRONG_INLINE value_t intercept(index_t ic) const { return b_(0, ic); }
 
 protected:
