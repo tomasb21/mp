@@ -705,7 +705,7 @@ private:
 
     mat_t b_;               // matrix of coefficients with intercepts at row 0
     mat_t bs_;              // matrix of old coefficients with intercepts at row 0
-    mat_t p_;               // matrix of penalties
+    Eigen::Map<mat_t> p_;              // matrix of penalties
     mat_t q_;               // matrix of probability predictions
     vec_t sxp_;             // sum of exponential terms to normalize the probabilities
     Eigen::Map<const mat_t> y_; // original y response
