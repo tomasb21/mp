@@ -486,7 +486,7 @@ public:
         , emax_(1.0 / emin_)
         , b_(vp.size() + 1, y.cols())
         , bs_(vp.size() + 1, y.cols())
-        , p_(mp.rows(), mp.cols())
+        , p_(mp.data(), mp.rows(), mp.cols())
         , q_(y.rows(), y.cols())
         , sxp_(y.rows())
         , y_(y.data(), y.rows(), y.cols())
@@ -494,7 +494,6 @@ public:
     {
         b_.setZero();
         bs_.setZero();
-        p_.setZero();
         sxp_.setZero();
     }
 
@@ -800,6 +799,11 @@ public:
     GLMNETPP_STRONG_INLINE
     void update_dlx(index_t k, value_t beta_diff) {
         base_t::update_dlx(beta_diff, xv_ic_(k));
+    }
+
+    for (index_t ic = 0; ic < nc; ++ic) {
+    p_ic_ = p_.col(ic);  // initialize penalty vector for this coordinate
+    // then call update_beta(k, gk, l1_regul, l2_regul) for all k
     }
 
     GLMNETPP_STRONG_INLINE value_t& beta(index_t k) { return b_ic_(k+1); }
